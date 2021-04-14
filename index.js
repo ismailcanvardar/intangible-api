@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
   res.send("Intangible API.");
 });
 
-const PORT = "5000" || process.env.PORT;
+const PORT = process.env.PORT || "5000";
 
 connect()
   .then(() => {
