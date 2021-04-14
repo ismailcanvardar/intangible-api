@@ -9,7 +9,15 @@ const userSchema = mongoose.Schema({
     type: String,
     default: null
   },
+  coverPhoto: {
+    type: String,
+    default: null
+  },
   username: {
+    type: String,
+    default: null
+  },
+  name: {
     type: String,
     default: null
   },

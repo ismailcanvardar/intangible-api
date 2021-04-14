@@ -19,23 +19,31 @@ const createUser = async (req, res) => {
 };
 
 const updateUser = async (req, res) => {
-  const {
-    profilePhoto,
-    username,
-    instagramUsername,
-    twitterUsername,
-    website,
-  } = req.body;
+  // const {
+  //   profilePhoto,
+  //   coverPhoto,
+  //   username,
+  //   name,
+  //   instagramUsername,
+  //   twitterUsername,
+  //   website,
+  // } = req.body;
 
   const { address } = req.params;
+  console.log(req.body);
 
   try {
-    await User.updateOne(
-      { address },
-      { profilePhoto, username, instagramUsername, twitterUsername, website }
-    );
-
-    res.status(200).send(true);
+    const foundUser = await User.findOne({ address });
+    if (!foundUser) {
+      const newUser = new User(req.body);
+      const savedUser = await newUser.save();
+      res.status(200).json(savedUser);
+    } else {
+      if (req.body !== {}) {
+        await User.updateOne({ address }, req.body);
+      }
+      res.status(200).send(true);
+    }
   } catch (err) {
     res.status(500).send(err);
   }
@@ -56,5 +64,5 @@ const getUser = async (req, res) => {
 module.exports = {
   createUser,
   updateUser,
-  getUser
+  getUser,
 };
