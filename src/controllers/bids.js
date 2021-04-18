@@ -10,11 +10,23 @@ const placeBid = async (req, res) => {
       auctionId,
       amount,
       from,
-      createdAt
+      createdAt,
     });
+
+    await Auction.findByIdAndUpdate(auctionId, { $inc: { bidCount: +1 } });
 
     const savedBid = await newBid.save();
     res.status(200).json(savedBid);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const cancelBid = async (req, res) => {
+  const { bidId } = req.body;
+
+  try {
+    await Bid.findByIdAndRemove(bidId);
   } catch (err) {
     res.status(500).send(err);
   }
@@ -36,4 +48,5 @@ const getBids = async (req, res) => {
 module.exports = {
   placeBid,
   getBids,
+  cancelBid
 };

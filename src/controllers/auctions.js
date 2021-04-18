@@ -82,8 +82,10 @@ const settleAuction = async (req, res) => {
   try {
     const foundAuction = await Auction.findOne({ status: "ACTIVE", tokenId });
 
-    if (foundAuction !== null && foundAuction !== undefined) {
-      const lastBid = await Bid.findOne({ auctionId: foundAuction._id }).sort({createdAt: -1}).limit(1);
+    if (foundAuction !== null && foundAuction !== undefined) {
+      const lastBid = await Bid.findOne({ auctionId: foundAuction._id })
+        .sort({ createdAt: -1 })
+        .limit(1);
       if (lastBid !== null && lastBid !== undefined) {
         await Token.updateOne({ tokenId }, { owner: lastBid.from });
       }
@@ -152,6 +154,63 @@ const getAuctions = async (req, res) => {
   }
 };
 
+const getLive = async (req, res) => {
+  try {
+    Auction.find({
+      endingDate: { $gte: new Date() },
+      status: "ACTIVE",
+    })
+      .populate("tokenDetails")
+      .populate({ path: "lastBid", options: { sort: { createdAt: -1 } } })
+      .exec((error, tokenDetail) => {
+        if (tokenDetail) {
+          res.status(200).json(tokenDetail);
+        } else if (error && !tokenDetail) {
+          res.status(200).send(false);
+        }
+      });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const getReserveNotMet = async (req, res) => {
+  try {
+    Auction.find({
+      $or: [{ endingDate: { $lte: new Date() } }, { bidCount: 0 }],
+      // status: { $not: "SETTLED" },
+    })
+      .populate("tokenDetails")
+      .populate({ path: "lastBid", options: { sort: { createdAt: -1 } } })
+      .exec((error, tokenDetail) => {
+        if (tokenDetail) {
+          res.status(200).json(tokenDetail);
+        } else if (error && !tokenDetail) {
+          res.status(200).send(false);
+        }
+      });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
+const getSold = async (req, res) => {
+  try {
+    Auction.find({ status: "SETTLED" })
+      .populate("tokenDetails")
+      .populate({ path: "lastBid", options: { sort: { createdAt: -1 } } })
+      .exec((error, tokenDetail) => {
+        if (tokenDetail) {
+          res.status(200).json(tokenDetail);
+        } else if (error && !tokenDetail) {
+          res.status(200).send(false);
+        }
+      });
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 module.exports = {
   createColdieAuction,
   createScheduledAuction,
@@ -159,4 +218,7 @@ module.exports = {
   cancelAuction,
   getAuction,
   getAuctions,
+  getLive,
+  getReserveNotMet,
+  getSold,
 };

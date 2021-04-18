@@ -61,8 +61,42 @@ const getUser = async (req, res) => {
   }
 };
 
+const searchUser = async (req, res) => {
+  const { searchParameter } = req.params;
+
+  try {
+    User.find(
+      {
+        $or: [
+          {
+            name: { $regex: searchParameter, $options: "i" },
+          },
+          {
+            username: { $regex: searchParameter, $options: "i" },
+          },
+          {
+            address: { $regex: searchParameter, $options: "i" },
+          },
+        ],
+      },
+      function (err, docs) {
+        if (err) res.send(err).status(500);
+
+        if (docs.length === 0) {
+          res.send(false).status(200);
+        } else {
+          res.json(docs).status(200);
+        }
+      }
+    );
+  } catch (err) {
+    res.send(err).status(500);
+  }
+};
+
 module.exports = {
   createUser,
   updateUser,
   getUser,
+  searchUser,
 };

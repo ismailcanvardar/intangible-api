@@ -8,6 +8,10 @@ const auctionSchema = mongoose.Schema(
     tokenId: {
       type: Number,
     },
+    bidCount: {
+      type: Number,
+      default: 0
+    },
     status: {
       type: String,
       default: "ACTIVE", // ACTIVE, CANCELLED, SETTLED
