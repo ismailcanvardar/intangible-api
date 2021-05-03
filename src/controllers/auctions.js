@@ -159,6 +159,7 @@ const getLive = async (req, res) => {
     Auction.find({
       endingDate: { $gte: new Date() },
       status: "ACTIVE",
+      type: "SCHEDULED"
     })
       .populate("tokenDetails")
       .populate({ path: "lastBid", options: { sort: { createdAt: -1 } } })
@@ -177,7 +178,7 @@ const getLive = async (req, res) => {
 const getReserveNotMet = async (req, res) => {
   try {
     Auction.find({
-      $or: [{ endingDate: { $lte: new Date() } }, { bidCount: 0 }],
+      type: "COLDIE",
       // status: { $not: "SETTLED" },
     })
       .populate("tokenDetails")
