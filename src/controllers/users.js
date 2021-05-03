@@ -18,6 +18,22 @@ const createUser = async (req, res) => {
   }
 };
 
+const getUsername = async (req, res) => {
+  const { address } = req.params;
+
+  try {
+    const user = await User.findOne({ address });
+
+    if (!user) {
+      res.status(200).send(false);
+    } else {
+      res.status(200).send(user.username);
+    }
+  } catch (err) {
+    res.status(500).send(err);
+  }
+};
+
 const updateUser = async (req, res) => {
   // const {
   //   profilePhoto,
@@ -99,4 +115,5 @@ module.exports = {
   updateUser,
   getUser,
   searchUser,
+  getUsername
 };
